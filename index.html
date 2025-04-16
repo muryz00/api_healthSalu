@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastro de Usuários</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .form-group { margin-bottom: 10px; }
+    label { display: block; margin-bottom: 5px; }
+    input, select { padding: 6px; width: 100%; max-width: 300px; }
+    .hidden { display: none; }
+    button { padding: 8px 12px; margin-top: 10px; }
+    #resposta { margin-top: 20px; font-weight: bold; }
+  </style>
+  <script>
+    // Função para exibir ou ocultar campos específicos conforme o tipo escolhido
+    function alterarCampos() {
+      var tipo = document.getElementById("tipo").value;
+      if (tipo === "paciente") {
+        document.getElementById("divPaciente").classList.remove("hidden");
+        document.getElementById("divMedico").classList.add("hidden");
+      } else if (tipo === "medico") {
+        document.getElementById("divPaciente").classList.add("hidden");
+        document.getElementById("divMedico").classList.remove("hidden");
+      } else {
+        document.getElementById("divPaciente").classList.add("hidden");
+        document.getElementById("divMedico").classList.add("hidden");
+      }
+    }
+
+    // Função que realiza a requisição para cadastro
+    function cadastrar() {
+      var tipo    = document.getElementById("tipo").value;
+      var nome    = document.getElementById("nome").value;
+      var email   = document.getElementById("email").value;
+      var senha   = document.getElementById("senha").value;
+
+      // Campos comuns para paciente e médico
+      var cpf     = document.getElementById("cpf").value;
+      var telefone= document.getElementById("telefone").value;
+
+      // Montagem dos parâmetros de acordo com o tipo
+      var parametros = "nome=" + encodeURIComponent(nome)
+                       + "&email=" + encodeURIComponent(email)
+                       + "&senha=" + encodeURIComponent(senha)
+                       + "&tipo=" + encodeURIComponent(tipo)
+                       + "&cpf=" + encodeURIComponent(cpf)
+                       + "&telefone=" + encodeURIComponent(telefone);
+
+      if (tipo === "paciente") {
+          var dataNasc = document.getElementById("dataNasc").value;
+          parametros += "&data_nasc=" + encodeURIComponent(dataNasc);
+      } else if (tipo === "medico") {
+          var crm = document.getElementById("crm").value;
+          var especialidade = document.getElementById("especialidade").value;
+          parametros += "&crm=" + encodeURIComponent(crm)
+                        + "&especialidade=" + encodeURIComponent(especialidade);
+      }
+
+      // Cria objeto XMLHttpRequest para chamada GET no controlador
+      var requisicao = new XMLHttpRequest();
+      requisicao.open("GET", "controllerCadastro.php?" + parametros + "&acao=cadastrar");
+      requisicao.send();
+
+      requisicao.onload = function(){
+          document.getElementById("resposta").innerHTML = this.responseText;
+
+          // Redireciona para a página de login após o cadastro
+        if (this.responseText.includes("sucesso")) { // Ajuste conforme a resposta do servidor
+          window.location.href = "login.html";
+        }
+      }
+    }
+
+    function atualizar() {
+      // Similar à função cadastrar, mas com a ação "atualizar"
+      var tipo    = document.getElementById("tipo").value;
+      var nome    = document.getElementById("nome").value;
+      var email   = document.getElementById("email").value;
+      var senha   = document.getElementById("senha").value;
+      var cpf     = document.getElementById("cpf").value;
+      var telefone= document.getElementById("telefone").value;
+
+      var parametros = "nome=" + encodeURIComponent(nome)
+                       + "&email=" + encodeURIComponent(email)
+                       + "&senha=" + encodeURIComponent(senha)
+                       + "&tipo=" + encodeURIComponent(tipo)
+                       + "&cpf=" + encodeURIComponent(cpf)
+                       + "&telefone=" + encodeURIComponent(telefone);
+
+      if (tipo === "paciente") {
+          var dataNasc = document.getElementById("dataNasc").value;
+          parametros += "&data_nasc=" + encodeURIComponent(dataNasc);
+      } else if (tipo === "medico") {
+          var crm = document.getElementById("crm").value;
+          var especialidade = document.getElementById("especialidade").value;
+          parametros += "&crm=" + encodeURIComponent(crm)
+                        + "&especialidade=" + encodeURIComponent(especialidade);
+      }
+
+      var requisicao = new XMLHttpRequest();
+      requisicao.open("GET", "controllerCadastro.php?" + parametros + "&acao=atualizar");
+      requisicao.send();
+
+      requisicao.onload = function(){
+          document.getElementById("resposta").innerHTML = this.responseText;
+      }
+    }
+
+    function apagar() {
+      var cpf = document.getElementById("cpf").value;
+
+      var requisicao = new XMLHttpRequest();
+      requisicao.open("GET", "controllerCadastro.php?cpf=" + encodeURIComponent(cpf) + "&acao=apagar");
+      requisicao.send();
+
+      requisicao.onload = function(){
+          document.getElementById("resposta").innerHTML = this.responseText;
+      }
+    }
+
+    function consultar() {
+      var requisicao = new XMLHttpRequest();
+      requisicao.open("GET", "controllerCadastro.php?acao=consultar");
+      requisicao.send();
+
+      requisicao.onload = function(){
+          document.getElementById("resposta").innerHTML = this.responseText;
+      }
+    }
+  </script>
+</head>
+<body onload="alterarCampos()">
+  <h1>Cadastro de Usuários</h1>
+  
+  <div class="form-group">
+    <label for="tipo">Tipo de Usuário</label>
+    <select id="tipo" onchange="alterarCampos()">
+      <option value="">Selecione</option>
+      <option value="paciente">Paciente</option>
+      <option value="medico">Médico</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="nome">Nome</label>
+    <input id="nome" placeholder="Nome" type="text">
+  </div>
+
+  <div class="form-group">
+    <label for="email">E-mail</label>
+    <input id="email" placeholder="E-mail" type="email">
+  </div>
+
+  <div class="form-group">
+    <label for="senha">Senha</label>
+    <input id="senha" placeholder="Senha" type="password">
+  </div>
+
+  <div class="form-group">
+    <label for="cpf">CPF</label>
+    <input id="cpf" placeholder="CPF" type="text">
+  </div>
+
+  <div class="form-group">
+    <label for="telefone">Telefone</label>
+    <input id="telefone" placeholder="Telefone" type="text">
+  </div>
+  
+  <!-- Campos exclusivos para Paciente -->
+  <div id="divPaciente" class="form-group hidden">
+    <label for="dataNasc">Data de Nascimento</label>
+    <input id="dataNasc" placeholder="Data de Nascimento" type="date">
+  </div>
+
+  <!-- Campos exclusivos para Médico -->
+  <div id="divMedico" class="form-group hidden">
+    <label for="crm">CRM</label>
+    <input id="crm" placeholder="CRM" type="text">
+    <label for="especialidade">Especialidade</label>
+    <input id="especialidade" placeholder="Especialidade" type="text">
+  </div>
+
+  <div class="form-group">
+    <button onclick="cadastrar()">Cadastrar</button>
+    <button onclick="atualizar()">Atualizar</button>
+    <button onclick="apagar()">Apagar</button>
+    <button onclick="consultar()">Consultar</button>
+  </div>
+  
+  <p id="resposta"></p>
+</body>
+</html>
