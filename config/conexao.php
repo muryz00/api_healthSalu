@@ -1,4 +1,5 @@
 <?php
+
     class Conexao{
        private static $instancia;
        public static function pegarConexao(){
