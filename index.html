@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cadastro de Usuários</title>
+  <title>Teste de Rotinas PHP</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     .form-group { margin-bottom: 10px; }
     label { display: block; margin-bottom: 5px; }
-    input, select { padding: 6px; width: 100%; max-width: 300px; }
+    input, select, textarea { padding: 6px; width: 100%; max-width: 400px; }
     .hidden { display: none; }
     button { padding: 8px 12px; margin-top: 10px; }
-    #resposta { margin-top: 20px; font-weight: bold; }
+    #resposta { margin-top: 20px; font-weight: bold; white-space: pre-wrap; }
   </style>
   <script>
     // Função para exibir ou ocultar campos específicos conforme o tipo escolhido
@@ -29,25 +29,25 @@
       }
     }
 
-    // Função que realiza a requisição para cadastro
-    function cadastrar() {
+    // Função genérica para realizar requisições ao servidor
+    function executarAcao(acao) {
       var tipo    = document.getElementById("tipo").value;
       var nome    = document.getElementById("nome").value;
       var email   = document.getElementById("email").value;
       var senha   = document.getElementById("senha").value;
-
-      // Campos comuns para paciente e médico
       var cpf     = document.getElementById("cpf").value;
       var telefone= document.getElementById("telefone").value;
 
-      // Montagem dos parâmetros de acordo com o tipo
-      var parametros = "nome=" + encodeURIComponent(nome)
+      // Montagem dos parâmetros comuns
+      var parametros = "acao=" + encodeURIComponent(acao)
+                       + "&nome=" + encodeURIComponent(nome)
                        + "&email=" + encodeURIComponent(email)
                        + "&senha=" + encodeURIComponent(senha)
                        + "&tipo=" + encodeURIComponent(tipo)
                        + "&cpf=" + encodeURIComponent(cpf)
                        + "&telefone=" + encodeURIComponent(telefone);
 
+      // Adiciona parâmetros específicos conforme o tipo
       if (tipo === "paciente") {
           var dataNasc = document.getElementById("dataNasc").value;
           parametros += "&data_nasc=" + encodeURIComponent(dataNasc);
@@ -60,79 +60,18 @@
 
       // Cria objeto XMLHttpRequest para chamada GET no controlador
       var requisicao = new XMLHttpRequest();
-      requisicao.open("GET", "controllerCadastro.php?" + parametros + "&acao=cadastrar");
+      requisicao.open("GET", "controllerCadastro.php?" + parametros);
       requisicao.send();
 
-      requisicao.onload = function(){
-          document.getElementById("resposta").innerHTML = this.responseText;
-
-          // Redireciona para a página de login após o cadastro
-        if (this.responseText.includes("sucesso")) { // Ajuste conforme a resposta do servidor
-          window.location.href = "login.html";
-        }
-      }
-    }
-
-    function atualizar() {
-      // Similar à função cadastrar, mas com a ação "atualizar"
-      var tipo    = document.getElementById("tipo").value;
-      var nome    = document.getElementById("nome").value;
-      var email   = document.getElementById("email").value;
-      var senha   = document.getElementById("senha").value;
-      var cpf     = document.getElementById("cpf").value;
-      var telefone= document.getElementById("telefone").value;
-
-      var parametros = "nome=" + encodeURIComponent(nome)
-                       + "&email=" + encodeURIComponent(email)
-                       + "&senha=" + encodeURIComponent(senha)
-                       + "&tipo=" + encodeURIComponent(tipo)
-                       + "&cpf=" + encodeURIComponent(cpf)
-                       + "&telefone=" + encodeURIComponent(telefone);
-
-      if (tipo === "paciente") {
-          var dataNasc = document.getElementById("dataNasc").value;
-          parametros += "&data_nasc=" + encodeURIComponent(dataNasc);
-      } else if (tipo === "medico") {
-          var crm = document.getElementById("crm").value;
-          var especialidade = document.getElementById("especialidade").value;
-          parametros += "&crm=" + encodeURIComponent(crm)
-                        + "&especialidade=" + encodeURIComponent(especialidade);
-      }
-
-      var requisicao = new XMLHttpRequest();
-      requisicao.open("GET", "controllerCadastro.php?" + parametros + "&acao=atualizar");
-      requisicao.send();
-
-      requisicao.onload = function(){
-          document.getElementById("resposta").innerHTML = this.responseText;
-      }
-    }
-
-    function apagar() {
-      var cpf = document.getElementById("cpf").value;
-
-      var requisicao = new XMLHttpRequest();
-      requisicao.open("GET", "controllerCadastro.php?cpf=" + encodeURIComponent(cpf) + "&acao=apagar");
-      requisicao.send();
-
-      requisicao.onload = function(){
-          document.getElementById("resposta").innerHTML = this.responseText;
-      }
-    }
-
-    function consultar() {
-      var requisicao = new XMLHttpRequest();
-      requisicao.open("GET", "controllerCadastro.php?acao=consultar");
-      requisicao.send();
-
-      requisicao.onload = function(){
+      // Exibe a resposta do servidor
+      requisicao.onload = function() {
           document.getElementById("resposta").innerHTML = this.responseText;
       }
     }
   </script>
 </head>
 <body onload="alterarCampos()">
-  <h1>Cadastro de Usuários</h1>
+  <h1>Teste de Rotinas PHP</h1>
   
   <div class="form-group">
     <label for="tipo">Tipo de Usuário</label>
@@ -183,12 +122,13 @@
   </div>
 
   <div class="form-group">
-    <button onclick="cadastrar()">Cadastrar</button>
-    <button onclick="atualizar()">Atualizar</button>
-    <button onclick="apagar()">Apagar</button>
-    <button onclick="consultar()">Consultar</button>
+    <button onclick="executarAcao('cadastrar')">Cadastrar</button>
+    <button onclick="executarAcao('atualizar')">Atualizar</button>
+    <button onclick="executarAcao('deletar')">Deletar</button>
+    <button onclick="executarAcao('consultar')">Consultar</button>
   </div>
   
-  <p id="resposta"></p>
+  <h2>Resposta do Servidor</h2>
+  <pre id="resposta"></pre>
 </body>
 </html>
